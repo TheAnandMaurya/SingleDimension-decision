@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Priority Decision App</title>
+    <style>
+        :root {
+            --color-bg-primary: #fcfcf9;
+            --color-bg-surface: #fffffe;
+            --color-text-primary: #13343b;
+            --color-text-secondary: #626c7c;
+            --color-primary: #21808d;
+            --color-primary-hover: #1d7480;
+            --color-border: rgba(94, 82, 64, 0.2);
+            --color-success: #21808d;
+            --color-danger: #c0152f;
+            --color-warning: #e68161;
+            --color-card-bg: #ffffff;
+            --color-shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg-primary: #1f2121;
+                --color-bg-surface: #262828;
+                --color-text-primary: #f5f5f5;
+                --color-text-secondary: #a7a9a9;
+                --color-primary: #32b8c6;
+                --color-primary-hover: #2da6b2;
+                --color-border: rgba(119, 124, 124, 0.3);
+                --color-card-bg: #2e3030;
+                --color-shadow: rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.8rem;
+            color: var(--color-primary);
+        }
+
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            background: var(--color-bg-surface);
+            border-radius: 12px;
+            padding: 8px;
+            gap: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px var(--color-shadow);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .tab {
+            flex: 0 0 auto;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: rgba(33, 128, 141, 0.1);
+        }
+
+        .tab.active {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--color-card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px var(--color-shadow);
+            border: 1px solid var(--color-border);
+        }
+
+        .card h2 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box {
+            background: rgba(33, 128, 141, 0.1);
+            border-left: 4px solid var(--color-primary);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-box li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .info-box li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--color-primary);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--color-bg-surface);
+            color: var(--color-text-primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            gap: 10px;
+        }
+
+        .item-content {
+            flex: 1;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .badge-benefit {
+            background: rgba(34, 197, 94, 0.2);
+            color: #16a34a;
+        }
+
+        .badge-cost {
+            background: rgba(239, 68, 68, 0.2);
+            color: #dc2626;
+        }
+
+        .badge-short {
+            background: rgba(74, 222, 128, 0.2);
+            color: #22c55e;
+        }
+
+        .badge-long {
+            background: rgba(34, 197, 94, 0.3);
+            color: #15803d;
+        }
+
+        .badge-imaginary {
+            background: rgba(251, 146, 60, 0.2);
+            color: #ea580c;
+        }
+
+        .badge-actual {
+            background: rgba(239, 68, 68, 0.2);
+            color: #dc2626;
+        }
+
+        .task-card {
+            background: var(--color-card-bg);
+            border: 2px solid var(--color-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .task-card h3 {
+            margin-bottom: 20px;
+            color: var(--color-primary);
+            font-size: 1.3rem;
+        }
+
+        .rating-section {
+            margin-bottom: 25px;
+        }
+
+        .rating-section h4 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: var(--color-bg-surface);
+            border-radius: 8px;
+        }
+
+        .slider-label {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .slider-container {
+            flex: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--color-border);
+            border-radius: 5px;
+            outline: none;
+            min-width: 120px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px;
+            height: 28px;
+            background: var(--color-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            background: var(--color-primary);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .slider-value {
+            min-width: 80px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--color-primary);
+            font-size: 16px;
+        }
+
+        .notice {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f59e0b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .notice.hidden {
+            display: none;
+        }
+
+        .result-card {
+            background: var(--color-card-bg);
+            border: 2px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .result-header .medal {
+            font-size: 2rem;
+        }
+
+        .result-header h3 {
+            flex: 1;
+            font-size: 1.4rem;
+        }
+
+        .result-score {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .result-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--color-bg-surface);
+            border-radius: 8px;
+        }
+
+        .summary-item .label {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .summary-item .value {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .breakdown {
+            margin-top: 20px;
+        }
+
+        .breakdown h4 {
+            margin: 15px 0 10px;
+            color: var(--color-primary);
+        }
+
+        .breakdown-item {
+            padding: 8px 12px;
+            background: var(--color-bg-surface);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .formula-box {
+            background: rgba(33, 128, 141, 0.1);
+            border: 2px dashed var(--color-primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .history-item {
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-time {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-top: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 1.4rem;
+            }
+
+            .tabs {
+                padding: 4px;
+                gap: 4px;
+            }
+
+            .tab {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .result-summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Smart Priority Decision App</h1>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('tasks')">📋 Tasks</button>
+            <button class="tab" onclick="switchTab('short')">🟢 Short-Term Positive</button>
+            <button class="tab" onclick="switchTab('long')">🟩 Long-Term Positive</button>
+            <button class="tab" onclick="switchTab('imaginary')">🔴 Imaginary Cost</button>
+            <button class="tab" onclick="switchTab('actual')">🟥 Actual Cost</button>
+            <button class="tab" onclick="switchTab('rating')">⭐ Task Rating</button>
+            <button class="tab" onclick="switchTab('results')">🏆 Results</button>
+            <button class="tab" onclick="switchTab('history')">📜 History</button>
+        </div>
+
+        <div id="tasks-screen" class="screen active"></div>
+        <div id="short-screen" class="screen"></div>
+        <div id="long-screen" class="screen"></div>
+        <div id="imaginary-screen" class="screen"></div>
+        <div id="actual-screen" class="screen"></div>
+        <div id="rating-screen" class="screen"></div>
+        <div id="results-screen" class="screen"></div>
+        <div id="history-screen" class="screen"></div>
+    </div>
+
+    <script>
+        const state = {
+            tasks: [],
+            criteria: [],
+            ratings: {},
+            history: [],
+            ratingsChanged: false
+        };
+
+        const groupConfig = {
+            short: {
+                label: 'Short-Term Positive (Instant Reward)',
+                type: 'benefit',
+                weight: 2,
+                icon: '🟢',
+                info: [
+                    'Immediate Enjoyment',
+                    'Mood Boost',
+                    'Social Approval',
+                    'Quick Completion Satisfaction',
+                    'Mental Relief (stress break)'
+                ]
+            },
+            long: {
+                label: 'Long-Term Positive (Constructive Reward)',
+                type: 'benefit',
+                weight: 4,
+                icon: '🟩',
+                info: [
+                    'Skill Development',
+                    'Financial Stability',
+                    'Relationship Strengthening',
+                    'Health Improvement',
+                    'Career Progress'
+                ]
+            },
+            imaginary: {
+                label: 'Imaginary Cost (Perceived / Social Fear)',
+                type: 'cost',
+                weight: 1,
+                icon: '🔴',
+                info: [
+                    'Log kya kahenge',
+                    'Stage fear',
+                    'Awkward lagega',
+                    'Rejection ka darr',
+                    'Overthinking outcome'
+                ]
+            },
+            actual: {
+                label: 'Actual Cost (Real Threat)',
+                type: 'cost',
+                weight: 5,
+                icon: '🟥',
+                info: [
+                    'Time Required',
+                    'Energy Drain',
+                    'Money Cost',
+                    'Missed Deadline Risk',
+                    'Dependency Unavailable'
+                ]
+            }
+        };
+
+        function addToHistory(action, details) {
+            const entry = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('en-US'),
+                action,
+                details,
+                snapshot: JSON.parse(JSON.stringify({ tasks: state.tasks, criteria: state.criteria, ratings: state.ratings }))
+            };
+            state.history.unshift(entry);
+            saveState();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-screen`).classList.add('active');
+        }
+
+        function renderTasks() {
+            const screen = document.getElementById('tasks-screen');
+            screen.innerHTML = `
+                <div class="card">
+                    <h2>📋 Add Your Tasks</h2>
+                    <div class="input-group">
+                        <input type="text" id="task-input" placeholder="Enter task name">
+                        <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Your Tasks (${state.tasks.length})</h2>
+                    ${state.tasks.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">📝</div><p>No tasks yet. Add your first task above!</p></div>' : ''}
+                    <div class="item-list">
+                        ${state.tasks.map(task => `
+                            <div class="item">
+                                <div class="item-content">
+                                    <strong>${task.name}</strong>
+                                </div>
+                                <div class="item-actions">
+                                    <button class="btn btn-primary btn-small" onclick="editTask(${task.id})">Edit</button>
+                                    <button class="btn btn-danger btn-small" onclick="deleteTask(${task.id})">Delete</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function addTask() {
+            const input = document.getElementById('task-input');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter a task name');
+                return;
+            }
+            const task = { id: Date.now(), name };
+            state.tasks.push(task);
+            addToHistory('Task Added', `Added task: ${name}`);
+            input.value = '';
+            renderTasks();
+            renderRating();
+        }
+
+        function editTask(id) {
+            const task = state.tasks.find(t => t.id === id);
+            const newName = prompt('Edit task name:', task.name);
+            if (newName && newName.trim() && newName !== task.name) {
+                task.name = newName.trim();
+                addToHistory('Task Edited', `Edited task to: ${newName}`);
+                renderTasks();
+                renderRating();
+            }
+        }
+
+        function deleteTask(id) {
+            const task = state.tasks.find(t => t.id === id);
+            if (confirm(`Delete task "${task.name}"?`)) {
+                state.tasks = state.tasks.filter(t => t.id !== id);
+                delete state.ratings[id];
+                addToHistory('Task Deleted', `Deleted task: ${task.name}`);
+                renderTasks();
+                renderRating();
+            }
+        }
+
+        function renderCriteria(group) {
+            const config = groupConfig[group];
+            const screen = document.getElementById(`${group}-screen`);
+            const groupCriteria = state.criteria.filter(c => c.group === group);
+            
+            screen.innerHTML = `
+                <div class="card">
+                    <h2>${config.icon} ${config.label} Criteria</h2>
+                    <div class="info-box">
+                        <ul>
+                            ${config.info.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="${group}-criteria-input" placeholder="Criteria Name">
+                        <button class="btn btn-primary" onclick="addCriteria('${group}')">Add Criteria</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Your ${config.label} Criteria (${groupCriteria.length})</h2>
+                    ${groupCriteria.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">✨</div><p>No criteria yet. Add your first criterion above!</p></div>' : ''}
+                    <div class="item-list">
+                        ${groupCriteria.map(c => `
+                            <div class="item">
+                                <div class="item-content">
+                                    <strong>${c.name}</strong>
+                                    <span class="badge badge-${c.group}">${config.label}</span>
+                                    <span class="badge badge-${c.type}">${c.type === 'benefit' ? 'Benefit' : 'Cost'}</span>
+                                    <div style="margin-top: 5px; font-size: 14px; color: var(--color-text-secondary);">
+                                        Weight: ${c.weight}/5 ${c.weight === 0 ? '(Ignored)' : ''}
+                                    </div>
+                                </div>
+                                <div class="item-actions">
+                                    <button class="btn btn-primary btn-small" onclick="editCriteriaName(${c.id})">Edit Name</button>
+                                    <button class="btn btn-danger btn-small" onclick="deleteCriteria(${c.id})">Delete</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function addCriteria(group) {
+            const input = document.getElementById(`${group}-criteria-input`);
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter a criteria name');
+                return;
+            }
+            const config = groupConfig[group];
+            const criteria = {
+                id: Date.now(),
+                name,
+                group,
+                type: config.type,
+                weight: config.weight
+            };
+            state.criteria.push(criteria);
+            addToHistory('Criteria Added', `Added criteria: ${name} (${config.label})`);
+            input.value = '';
+            renderCriteria(group);
+            renderRating();
+        }
+
+        function editCriteriaName(id) {
+            const criteria = state.criteria.find(c => c.id === id);
+            const newName = prompt('Edit criteria name:', criteria.name);
+            if (newName && newName.trim() && newName !== criteria.name) {
+                criteria.name = newName.trim();
+                addToHistory('Criteria Edited', `Edited criteria to: ${newName}`);
+                renderCriteria(criteria.group);
+                renderRating();
+            }
+        }
+
+        function deleteCriteria(id) {
+            const criteria = state.criteria.find(c => c.id === id);
+            if (confirm(`Delete criteria "${criteria.name}"?`)) {
+                state.criteria = state.criteria.filter(c => c.id !== id);
+                Object.keys(state.ratings).forEach(taskId => {
+                    if (state.ratings[taskId][id] !== undefined) {
+                        delete state.ratings[taskId][id];
+                    }
+                });
+                addToHistory('Criteria Deleted', `Deleted criteria: ${criteria.name}`);
+                renderCriteria(criteria.group);
+                renderRating();
+            }
+        }
+
+        function renderRating() {
+            const screen = document.getElementById('rating-screen');
+            
+            const taskCards = state.tasks.map(task => {
+                const groups = ['short', 'long', 'imaginary', 'actual'];
+                const sections = groups.map(group => {
+                    const groupCriteria = state.criteria.filter(c => c.group === group);
+                    const config = groupConfig[group];
+                    
+                    if (groupCriteria.length === 0) {
+                        return `
+                            <div class="rating-section">
+                                <h4>${config.icon} ${config.label}</h4>
+                                <p style="color: var(--color-text-secondary); font-size: 14px;">No criteria added yet.</p>
+                            </div>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="rating-section">
+                            <h4>${config.icon} ${config.label}</h4>
+                            ${groupCriteria.map(c => {
+                                if (!state.ratings[task.id]) state.ratings[task.id] = {};
+                                if (state.ratings[task.id][c.id] === undefined) state.ratings[task.id][c.id] = 3;
+                                const value = state.ratings[task.id][c.id];
+                                return `
+                                    <div class="slider-row">
+                                        <div class="slider-label">${c.name}</div>
+                                        <div class="slider-container">
+                                            <input type="range" min="0" max="5" step="1" value="${value}" 
+                                                onchange="updateRating(${task.id}, ${c.id}, this.value)">
+                                            <div class="slider-value">${value}/5</div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }).join('');
+                
+                return `
+                    <div class="task-card">
+                        <h3>📋 ${task.name}</h3>
+                        ${sections}
+                    </div>
+                `;
+            }).join('');
+
+            const weightSection = state.criteria.length > 0 ? `
+                <div class="card">
+                    <h2>⚖️ Criteria Weight Assignment</h2>
+                    <p style="margin-bottom: 20px; color: var(--color-text-secondary);">
+                        Set importance (0–5) for each criterion. Higher weight = stronger impact on final priority.
+                    </p>
+                    <div class="info-box">
+                        <p><strong>Reminder:</strong></p>
+                        <ul>
+                            <li>Short-Term reward → lower typical weights</li>
+                            <li>Long-Term reward → higher typical weights</li>
+                            <li>Imaginary cost → lower penalty</li>
+                            <li>Actual cost → higher penalty</li>
+                        </ul>
+                    </div>
+                    ${state.criteria.map(c => {
+                        const config = groupConfig[c.group];
+                        return `
+                            <div class="slider-row">
+                                <div class="slider-label">
+                                    ${c.name}
+                                    <span class="badge badge-${c.group}">${config.label.split('(')[0].trim()}</span>
+                                    <span class="badge badge-${c.type}">${c.type === 'benefit' ? 'Benefit' : 'Cost'}</span>
+                                </div>
+                                <div class="slider-container">
+                                    <input type="range" min="0" max="5" step="1" value="${c.weight}" 
+                                        onchange="updateWeight(${c.id}, this.value)">
+                                    <div class="slider-value">${c.weight}/5 ${c.weight === 0 ? '(Ignore)' : ''}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            ` : '';
+
+            const notice = `
+                <div class="notice ${state.ratingsChanged ? '' : 'hidden'}" id="regen-notice">
+                    <div>
+                        You have changed ratings or criteria weights. Tap the button to regenerate results.
+                    </div>
+                    <button class="btn btn-primary" onclick="regenerateResults()">Regenerate Results</button>
+                </div>
+            `;
+
+            screen.innerHTML = `
+                <div class="card">
+                    <h2>⭐ Rate Your Tasks</h2>
+                    <p style="color: var(--color-text-secondary); margin-bottom: 20px;">
+                        Slide from 0 (No Impact) to 5 (Maximum Impact) for each criterion.
+                    </p>
+                </div>
+                ${state.tasks.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">📝</div><p>No tasks yet. Add tasks first!</p></div>' : taskCards}
+                ${weightSection}
+                ${notice}
+            `;
+        }
+
+        function updateRating(taskId, criteriaId, value) {
+            if (!state.ratings[taskId]) state.ratings[taskId] = {};
+            state.ratings[taskId][criteriaId] = parseInt(value);
+            state.ratingsChanged = true;
+            saveState();
+            renderRating();
+        }
+
+        function updateWeight(criteriaId, value) {
+            const criteria = state.criteria.find(c => c.id === criteriaId);
+            criteria.weight = parseInt(value);
+            state.ratingsChanged = true;
+            saveState();
+            renderRating();
+        }
+
+        function regenerateResults() {
+            addToHistory('Results Regenerated', 'User regenerated results after changes');
+            state.ratingsChanged = false;
+            calculateResults();
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelector('.tab:nth-child(7)').classList.add('active');
+            document.getElementById('results-screen').classList.add('active');
+            alert('✅ New results generated successfully!');
+        }
+
+        function calculateResults() {
+            const results = state.tasks.map(task => {
+                let benefitScore = 0;
+                let costScore = 0;
+                const benefitDetails = [];
+                const costDetails = [];
+
+                state.criteria.forEach(c => {
+                    const rating = (state.ratings[task.id] && state.ratings[task.id][c.id] !== undefined) 
+                        ? state.ratings[task.id][c.id] 
+                        : 3;
+                    const weight = c.weight;
+                    const score = weight * rating;
+
+                    if (c.type === 'benefit') {
+                        benefitScore += score;
+                        benefitDetails.push({ name: c.name, weight, rating, score });
+                    } else {
+                        costScore += score;
+                        costDetails.push({ name: c.name, weight, rating, score });
+                    }
+                });
+
+                const finalScore = benefitScore - costScore;
+                return { task, benefitScore, costScore, finalScore, benefitDetails, costDetails };
+            });
+
+            results.sort((a, b) => b.finalScore - a.finalScore);
+
+            const totalPositiveScores = results.reduce((sum, r) => sum + Math.max(r.finalScore, 0), 0);
+            results.forEach(r => {
+                r.percentage = totalPositiveScores > 0 ? ((Math.max(r.finalScore, 0) / totalPositiveScores) * 100).toFixed(1) : 0;
+            });
+
+            renderResults(results);
+            saveState();
+        }
+
+        function renderResults(results) {
+            const screen = document.getElementById('results-screen');
+            
+            if (results.length === 0) {
+                screen.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏆</div><p>No results yet. Add tasks and criteria first!</p></div>';
+                return;
+            }
+
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            screen.innerHTML = results.map((r, index) => {
+                const medal = index < 3 ? medals[index] : '📌';
+                return `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <span class="medal">${medal}</span>
+                            <h3>${r.task.name}</h3>
+                            <span class="result-score">${r.finalScore.toFixed(1)}</span>
+                        </div>
+                        
+                        <div class="result-summary">
+                            <div class="summary-item">
+                                <div class="label">Benefits</div>
+                                <div class="value" style="color: #22c55e;">+${r.benefitScore.toFixed(1)}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">Costs</div>
+                                <div class="value" style="color: #ef4444;">-${r.costScore.toFixed(1)}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">Score</div>
+                                <div class="value" style="color: var(--color-primary);">${r.finalScore.toFixed(1)}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">Rank</div>
+                                <div class="value">#${index + 1}</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="label">Priority</div>
+                                <div class="value">${r.percentage}%</div>
+                            </div>
+                        </div>
+
+                        <div class="breakdown">
+                            <h4>✅ Benefit Calculations</h4>
+                            ${r.benefitDetails.length === 0 ? '<p style="color: var(--color-text-secondary); font-size: 14px;">No benefit criteria</p>' : ''}
+                            ${r.benefitDetails.map(d => `
+                                <div class="breakdown-item">
+                                    ${d.name}: ${d.weight} × ${d.rating} = ${d.score.toFixed(1)}
+                                </div>
+                            `).join('')}
+                            
+                            <h4>❌ Cost Calculations</h4>
+                            ${r.costDetails.length === 0 ? '<p style="color: var(--color-text-secondary); font-size: 14px;">No cost criteria</p>' : ''}
+                            ${r.costDetails.map(d => `
+                                <div class="breakdown-item">
+                                    ${d.name}: ${d.weight} × ${d.rating} = ${d.score.toFixed(1)}
+                                </div>
+                            `).join('')}
+                            
+                            <div class="formula-box">
+                                Final Score = ${r.benefitScore.toFixed(1)} - ${r.costScore.toFixed(1)} = ${r.finalScore.toFixed(1)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderHistory() {
+            const screen = document.getElementById('history-screen');
+            
+            if (state.history.length === 0) {
+                screen.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📜</div><p>No history yet. Your actions will appear here!</p></div>';
+                return;
+            }
+
+            screen.innerHTML = `
+                <div class="card">
+                    <h2>📜 Activity History (${state.history.length})</h2>
+                    ${state.history.map(h => `
+                        <div class="history-item">
+                            <div class="history-header">
+                                <div class="history-info">
+                                    <strong>${h.action}</strong>
+                                    <p style="font-size: 14px; color: var(--color-text-secondary); margin-top: 5px;">${h.details}</p>
+                                    <div class="history-time">${h.timestamp}</div>
+                                </div>
+                                <div class="item-actions">
+                                    <button class="btn btn-primary btn-small" onclick="restoreHistory(${h.id})">Restore</button>
+                                    <button class="btn btn-danger btn-small" onclick="deleteHistory(${h.id})">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function restoreHistory(id) {
+            const entry = state.history.find(h => h.id === id);
+            if (confirm('Restore to this point? Current state will be lost.')) {
+                state.tasks = JSON.parse(JSON.stringify(entry.snapshot.tasks));
+                state.criteria = JSON.parse(JSON.stringify(entry.snapshot.criteria));
+                state.ratings = JSON.parse(JSON.stringify(entry.snapshot.ratings));
+                addToHistory('State Restored', `Restored to: ${entry.action}`);
+                renderAll();
+            }
+        }
+
+        function deleteHistory(id) {
+            if (confirm('Delete this history entry?')) {
+                state.history = state.history.filter(h => h.id !== id);
+                saveState();
+                renderHistory();
+            }
+        }
+
+        function renderAll() {
+            renderTasks();
+            renderCriteria('short');
+            renderCriteria('long');
+            renderCriteria('imaginary');
+            renderCriteria('actual');
+            renderRating();
+            calculateResults();
+            renderHistory();
+        }
+
+        function saveState() {
+            localStorage.setItem('smartPriorityState', JSON.stringify(state));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('smartPriorityState');
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                state.tasks = loaded.tasks || [];
+                state.criteria = loaded.criteria || [];
+                state.ratings = loaded.ratings || {};
+                state.history = loaded.history || [];
+                state.ratingsChanged = loaded.ratingsChanged || false;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            renderAll();
+        });
+    </script>
+</body>
+</html>
+
