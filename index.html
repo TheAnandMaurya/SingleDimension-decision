@@ -1,37 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Priority Decision App</title>
+    <title>Event-Based Focus & Memory Prediction Engine</title>
     <style>
         :root {
-            --color-bg-primary: #fcfcf9;
-            --color-bg-surface: #fffffe;
-            --color-text-primary: #13343b;
-            --color-text-secondary: #626c7c;
-            --color-primary: #21808d;
-            --color-primary-hover: #1d7480;
-            --color-border: rgba(94, 82, 64, 0.2);
-            --color-success: #21808d;
-            --color-danger: #c0152f;
-            --color-warning: #e68161;
-            --color-card-bg: #ffffff;
-            --color-shadow: rgba(0, 0, 0, 0.1);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --color-bg-primary: #1f2121;
-                --color-bg-surface: #262828;
-                --color-text-primary: #f5f5f5;
-                --color-text-secondary: #a7a9a9;
-                --color-primary: #32b8c6;
-                --color-primary-hover: #2da6b2;
-                --color-border: rgba(119, 124, 124, 0.3);
-                --color-card-bg: #2e3030;
-                --color-shadow: rgba(0, 0, 0, 0.3);
-            }
+            --color-bg-base: #0f172a;
+            --color-bg-elevated: #1e293b;
+            --color-bg-surface: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-primary: #38bdf8;
+            --color-primary-hover: #0ea5e9;
+            --color-error: #ef4444;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-threat: #ef4444;
+            --color-reward: #3b82f6;
+            --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --radius-base: 8px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-24: 24px;
         }
 
         * {
@@ -41,1065 +34,1178 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--color-bg-primary);
+            font-family: var(--font-family-base);
+            background: var(--color-bg-base);
             color: var(--color-text-primary);
+            padding: var(--space-16);
             line-height: 1.6;
-            padding-bottom: 80px;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         h1 {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 1.8rem;
+            font-size: 1.75rem;
+            margin-bottom: var(--space-24);
             color: var(--color-primary);
+            text-align: center;
         }
 
         .tabs {
             display: flex;
-            overflow-x: auto;
-            background: var(--color-bg-surface);
-            border-radius: 12px;
-            padding: 8px;
-            gap: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px var(--color-shadow);
-            -webkit-overflow-scrolling: touch;
+            gap: var(--space-8);
+            margin-bottom: var(--space-24);
+            flex-wrap: wrap;
         }
 
-        .tab {
-            flex: 0 0 auto;
-            padding: 12px 20px;
-            border: none;
-            background: transparent;
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: var(--space-12) var(--space-16);
+            background: var(--color-bg-elevated);
             color: var(--color-text-secondary);
+            border: none;
+            border-radius: var(--radius-base);
             cursor: pointer;
-            border-radius: 8px;
-            font-size: 14px;
+            font-size: 0.95rem;
             font-weight: 500;
-            transition: all 0.3s;
-            white-space: nowrap;
+            transition: all 0.2s;
         }
 
-        .tab:hover {
-            background: rgba(33, 128, 141, 0.1);
+        .tab-btn:hover {
+            background: var(--color-bg-surface);
+            color: var(--color-text-primary);
         }
 
-        .tab.active {
+        .tab-btn.active {
             background: var(--color-primary);
-            color: white;
+            color: var(--color-bg-base);
         }
 
-        .screen {
+        .tab-content {
             display: none;
         }
 
-        .screen.active {
+        .tab-content.active {
             display: block;
         }
 
         .card {
-            background: var(--color-card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px var(--color-shadow);
-            border: 1px solid var(--color-border);
+            background: var(--color-bg-elevated);
+            border-radius: var(--radius-base);
+            padding: var(--space-24);
+            margin-bottom: var(--space-16);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .card h2 {
-            margin-bottom: 15px;
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-box {
-            background: rgba(33, 128, 141, 0.1);
-            border-left: 4px solid var(--color-primary);
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 8px;
-        }
-
-        .info-box ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .info-box li {
-            padding: 5px 0;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .info-box li:before {
-            content: "→";
-            position: absolute;
-            left: 0;
+            font-size: 1.25rem;
+            margin-bottom: var(--space-16);
             color: var(--color-primary);
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: var(--space-12);
+            color: var(--color-text-primary);
         }
 
         .input-group {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: var(--space-8);
+            margin-bottom: var(--space-16);
             flex-wrap: wrap;
         }
 
         input[type="text"] {
             flex: 1;
             min-width: 200px;
-            padding: 12px;
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            font-size: 16px;
+            padding: var(--space-12);
             background: var(--color-bg-surface);
+            border: 1px solid transparent;
+            border-radius: var(--radius-base);
             color: var(--color-text-primary);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--color-primary);
         }
 
         .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .btn-primary {
+            padding: var(--space-12) var(--space-16);
             background: var(--color-primary);
-            color: white;
+            color: var(--color-bg-base);
+            border: none;
+            border-radius: var(--radius-base);
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.2s;
         }
 
-        .btn-primary:hover {
+        .btn:hover {
             background: var(--color-primary-hover);
-            transform: translateY(-2px);
         }
 
-        .btn-danger {
-            background: var(--color-danger);
-            color: white;
+        .btn-delete {
+            background: var(--color-error);
+            padding: var(--space-8) var(--space-12);
+            font-size: 0.85rem;
         }
 
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 14px;
+        .btn-delete:hover {
+            background: #dc2626;
         }
 
         .item-list {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: var(--space-8);
         }
 
         .item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
+            padding: var(--space-12);
             background: var(--color-bg-surface);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            gap: 10px;
-        }
-
-        .item-content {
-            flex: 1;
-        }
-
-        .item-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-left: 8px;
-        }
-
-        .badge-benefit {
-            background: rgba(34, 197, 94, 0.2);
-            color: #16a34a;
-        }
-
-        .badge-cost {
-            background: rgba(239, 68, 68, 0.2);
-            color: #dc2626;
-        }
-
-        .badge-short {
-            background: rgba(74, 222, 128, 0.2);
-            color: #22c55e;
-        }
-
-        .badge-long {
-            background: rgba(34, 197, 94, 0.3);
-            color: #15803d;
-        }
-
-        .badge-imaginary {
-            background: rgba(251, 146, 60, 0.2);
-            color: #ea580c;
-        }
-
-        .badge-actual {
-            background: rgba(239, 68, 68, 0.2);
-            color: #dc2626;
-        }
-
-        .task-card {
-            background: var(--color-card-bg);
-            border: 2px solid var(--color-border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .task-card h3 {
-            margin-bottom: 20px;
-            color: var(--color-primary);
-            font-size: 1.3rem;
-        }
-
-        .rating-section {
-            margin-bottom: 25px;
-        }
-
-        .rating-section h4 {
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .slider-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: var(--color-bg-surface);
-            border-radius: 8px;
-        }
-
-        .slider-label {
-            flex: 1;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .slider-container {
-            flex: 2;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        input[type="range"] {
-            flex: 1;
-            height: 8px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: var(--color-border);
-            border-radius: 5px;
-            outline: none;
-            min-width: 120px;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 28px;
-            height: 28px;
-            background: var(--color-primary);
-            cursor: pointer;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 28px;
-            height: 28px;
-            background: var(--color-primary);
-            cursor: pointer;
-            border-radius: 50%;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .slider-value {
-            min-width: 80px;
-            text-align: center;
-            font-weight: 600;
-            color: var(--color-primary);
-            font-size: 16px;
-        }
-
-        .notice {
-            background: #fef3c7;
-            color: #92400e;
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border-left: 4px solid #f59e0b;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .notice.hidden {
-            display: none;
-        }
-
-        .result-card {
-            background: var(--color-card-bg);
-            border: 2px solid var(--color-primary);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .result-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .result-header .medal {
-            font-size: 2rem;
-        }
-
-        .result-header h3 {
-            flex: 1;
-            font-size: 1.4rem;
-        }
-
-        .result-score {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--color-primary);
-        }
-
-        .result-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .summary-item {
-            text-align: center;
-            padding: 15px;
-            background: var(--color-bg-surface);
-            border-radius: 8px;
-        }
-
-        .summary-item .label {
-            font-size: 12px;
-            color: var(--color-text-secondary);
-            margin-bottom: 5px;
-        }
-
-        .summary-item .value {
-            font-size: 1.4rem;
-            font-weight: bold;
-        }
-
-        .breakdown {
-            margin-top: 20px;
-        }
-
-        .breakdown h4 {
-            margin: 15px 0 10px;
-            color: var(--color-primary);
-        }
-
-        .breakdown-item {
-            padding: 8px 12px;
-            background: var(--color-bg-surface);
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .formula-box {
-            background: rgba(33, 128, 141, 0.1);
-            border: 2px dashed var(--color-primary);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .history-item {
-            background: var(--color-bg-surface);
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 10px;
-        }
-
-        .history-info {
-            flex: 1;
-        }
-
-        .history-time {
-            font-size: 12px;
-            color: var(--color-text-secondary);
-            margin-top: 5px;
+            border-radius: var(--radius-base);
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: var(--color-text-secondary);
+            color: var(--color-text-muted);
+            padding: var(--space-24);
         }
 
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 15px;
+        .two-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-16);
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
+            .two-panel {
+                grid-template-columns: 1fr;
             }
+        }
 
-            h1 {
-                font-size: 1.4rem;
-            }
+        .panel-threat {
+            border-left: 3px solid var(--color-threat);
+            padding-left: var(--space-12);
+        }
 
-            .tabs {
-                padding: 4px;
-                gap: 4px;
-            }
+        .panel-reward {
+            border-left: 3px solid var(--color-reward);
+            padding-left: var(--space-12);
+        }
 
-            .tab {
-                padding: 10px 12px;
-                font-size: 13px;
-            }
+        .rating-card {
+            background: var(--color-bg-elevated);
+            border-radius: var(--radius-base);
+            padding: var(--space-16);
+            margin-bottom: var(--space-16);
+            border: 2px solid var(--color-bg-surface);
+        }
 
-            .card {
-                padding: 15px;
-            }
+        .rating-card-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-16);
+            color: var(--color-primary);
+            padding-bottom: var(--space-8);
+            border-bottom: 1px solid var(--color-bg-surface);
+        }
 
-            .result-summary {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .rating-section {
+            margin-bottom: var(--space-24);
+        }
+
+        .rating-section h4 {
+            font-size: 0.95rem;
+            margin-bottom: var(--space-12);
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sliders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--space-16);
+        }
+
+        .slider-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .slider-label {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-8);
+            text-align: center;
+            min-height: 40px;
+        }
+
+        .slider-container {
+            position: relative;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slider-vertical {
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            width: 8px;
+            height: 180px;
+            background: var(--color-bg-surface);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .slider-vertical::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider-vertical::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+        .slider-value {
+            margin-top: var(--space-8);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+
+        .info-box {
+            background: var(--color-bg-surface);
+            border-left: 4px solid var(--color-primary);
+            padding: var(--space-16);
+            border-radius: var(--radius-base);
+            margin-bottom: var(--space-24);
+        }
+
+        .info-box h3 {
+            margin-bottom: var(--space-12);
+        }
+
+        .info-box p {
+            margin-bottom: var(--space-8);
+            line-height: 1.8;
+        }
+
+        .regenerate-notice {
+            background: var(--color-warning);
+            color: var(--color-bg-base);
+            padding: var(--space-16);
+            border-radius: var(--radius-base);
+            text-align: center;
+            margin-top: var(--space-24);
+        }
+
+        .regenerate-notice .btn {
+            margin-top: var(--space-12);
+            background: var(--color-bg-base);
+            color: var(--color-warning);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--space-16);
+            background: var(--color-bg-elevated);
+        }
+
+        th, td {
+            padding: var(--space-12);
+            text-align: left;
+            border-bottom: 1px solid var(--color-bg-surface);
+        }
+
+        th {
+            background: var(--color-bg-surface);
+            color: var(--color-text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        td {
+            font-size: 0.9rem;
+        }
+
+        .calculation-details {
+            display: none;
+            padding: var(--space-16);
+            background: var(--color-bg-surface);
+            border-radius: var(--radius-base);
+            margin-top: var(--space-8);
+        }
+
+        .calculation-details.active {
+            display: block;
+        }
+
+        .calc-group {
+            margin-bottom: var(--space-16);
+        }
+
+        .calc-group h5 {
+            color: var(--color-primary);
+            margin-bottom: var(--space-8);
+        }
+
+        .calc-item {
+            padding: 4px 0;
+            font-size: 0.9rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn-show-calc {
+            background: var(--color-bg-surface);
+            color: var(--color-primary);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-focus {
+            background: var(--color-primary);
+            color: var(--color-bg-base);
+        }
+
+        .badge-memory {
+            background: var(--color-success);
+            color: var(--color-bg-base);
+        }
+
+        .threat-icon {
+            color: var(--color-threat);
+        }
+
+        .reward-icon {
+            color: var(--color-reward);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Smart Priority Decision App</h1>
+        <h1>🧠 Event-Based Focus & Memory Prediction Engine</h1>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('tasks')">📋 Tasks</button>
-            <button class="tab" onclick="switchTab('short')">🟢 Short-Term Positive</button>
-            <button class="tab" onclick="switchTab('long')">🟩 Long-Term Positive</button>
-            <button class="tab" onclick="switchTab('imaginary')">🔴 Imaginary Cost</button>
-            <button class="tab" onclick="switchTab('actual')">🟥 Actual Cost</button>
-            <button class="tab" onclick="switchTab('rating')">⭐ Task Rating</button>
-            <button class="tab" onclick="switchTab('results')">🏆 Results</button>
-            <button class="tab" onclick="switchTab('history')">📜 History</button>
+            <button class="tab-btn active" data-tab="events">📅 Events</button>
+            <button class="tab-btn" data-tab="criteria">🎯 Criteria</button>
+            <button class="tab-btn" data-tab="ratings">⭐ Ratings</button>
+            <button class="tab-btn" data-tab="results">📊 Results</button>
         </div>
 
-        <div id="tasks-screen" class="screen active"></div>
-        <div id="short-screen" class="screen"></div>
-        <div id="long-screen" class="screen"></div>
-        <div id="imaginary-screen" class="screen"></div>
-        <div id="actual-screen" class="screen"></div>
-        <div id="rating-screen" class="screen"></div>
-        <div id="results-screen" class="screen"></div>
-        <div id="history-screen" class="screen"></div>
+        <div id="tab-events" class="tab-content active">
+            <div class="card">
+                <h2>Add Events</h2>
+                <div class="input-group">
+                    <input type="text" id="event-input" placeholder="Event Name">
+                    <button class="btn" onclick="addEvent()">➕ Add Event</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Add Dates</h2>
+                <div class="input-group">
+                    <input type="text" id="date-input" placeholder="Date Label">
+                    <button class="btn" onclick="addDate()">➕ Add Date</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Your Events & Dates</h2>
+                <h3>Events:</h3>
+                <div id="events-list" class="item-list"></div>
+                <h3 style="margin-top: 24px;">Dates:</h3>
+                <div id="dates-list" class="item-list"></div>
+            </div>
+        </div>
+
+        <div id="tab-criteria" class="tab-content">
+            <div class="card">
+                <h2>P – Person Relevance</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 16px;">किसी व्यक्ति की प्रासंगिकता के मापदंड</p>
+                <div class="input-group">
+                    <input type="text" id="p-input" placeholder="P Criteria Name">
+                    <button class="btn" onclick="addPCriteria()">➕ Add P Criteria</button>
+                </div>
+                <div id="p-criteria-list" class="item-list"></div>
+            </div>
+
+            <div class="card">
+                <h2>T – Threat / Reward Intensity</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 16px;">खतरा और इनाम की तीव्रता</p>
+                <div class="two-panel">
+                    <div class="panel-threat">
+                        <h3>🔴 Threat</h3>
+                        <div class="input-group">
+                            <input type="text" id="threat-input" placeholder="Threat Criteria">
+                            <button class="btn btn-delete" onclick="addThreatCriteria()">➕</button>
+                        </div>
+                        <div id="threat-criteria-list" class="item-list"></div>
+                    </div>
+                    <div class="panel-reward">
+                        <h3>🔵 Reward</h3>
+                        <div class="input-group">
+                            <input type="text" id="reward-input" placeholder="Reward Criteria">
+                            <button class="btn" onclick="addRewardCriteria()">➕</button>
+                        </div>
+                        <div id="reward-criteria-list" class="item-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>F – Future Relevance</h2>
+                <p style="color: var(--color-text-secondary); margin-bottom: 16px;">भविष्य की प्रासंगिकता के मापदंड</p>
+                <div class="input-group">
+                    <input type="text" id="f-input" placeholder="F Criteria Name">
+                    <button class="btn" onclick="addFCriteria()">➕ Add F Criteria</button>
+                </div>
+                <div id="f-criteria-list" class="item-list"></div>
+            </div>
+        </div>
+
+        <div id="tab-ratings" class="tab-content">
+            <div id="ratings-container"></div>
+        </div>
+
+        <div id="tab-results" class="tab-content">
+            <div id="results-container"></div>
+        </div>
     </div>
 
     <script>
         const state = {
-            tasks: [],
-            criteria: [],
+            events: [],
+            dates: [],
+            pCriteria: [
+                { id: 1, name: 'Authority Figure' },
+                { id: 2, name: 'Emotional Closeness' },
+                { id: 3, name: 'Resource Provider' },
+                { id: 4, name: 'Mate Relevance' },
+                { id: 5, name: 'Social Influence' }
+            ],
+            threatCriteria: [
+                { id: 1, name: 'Status Loss Risk' },
+                { id: 2, name: 'Social Rejection' },
+                { id: 3, name: 'Resource Loss' },
+                { id: 4, name: 'Incompetence Exposure' },
+                { id: 5, name: 'Mate Loss Risk' }
+            ],
+            rewardCriteria: [
+                { id: 1, name: 'Status Gain' },
+                { id: 2, name: 'Belonging' },
+                { id: 3, name: 'Mate Attraction' },
+                { id: 4, name: 'Resource Gain' },
+                { id: 5, name: 'Competence Validation' }
+            ],
+            fCriteria: [
+                { id: 1, name: 'Repeat Probability' },
+                { id: 2, name: 'Daily Life Impact' },
+                { id: 3, name: 'Long Term Consequence' },
+                { id: 4, name: 'Similar Situation Frequency' }
+            ],
             ratings: {},
-            history: [],
-            ratingsChanged: false
+            resultsDirty: true
         };
 
-        const groupConfig = {
-            short: {
-                label: 'Short-Term Positive (Instant Reward)',
-                type: 'benefit',
-                weight: 2,
-                icon: '🟢',
-                info: [
-                    'Immediate Enjoyment',
-                    'Mood Boost',
-                    'Social Approval',
-                    'Quick Completion Satisfaction',
-                    'Mental Relief (stress break)'
-                ]
-            },
-            long: {
-                label: 'Long-Term Positive (Constructive Reward)',
-                type: 'benefit',
-                weight: 4,
-                icon: '🟩',
-                info: [
-                    'Skill Development',
-                    'Financial Stability',
-                    'Relationship Strengthening',
-                    'Health Improvement',
-                    'Career Progress'
-                ]
-            },
-            imaginary: {
-                label: 'Imaginary Cost (Perceived / Social Fear)',
-                type: 'cost',
-                weight: 1,
-                icon: '🔴',
-                info: [
-                    'Log kya kahenge',
-                    'Stage fear',
-                    'Awkward lagega',
-                    'Rejection ka darr',
-                    'Overthinking outcome'
-                ]
-            },
-            actual: {
-                label: 'Actual Cost (Real Threat)',
-                type: 'cost',
-                weight: 5,
-                icon: '🟥',
-                info: [
-                    'Time Required',
-                    'Energy Drain',
-                    'Money Cost',
-                    'Missed Deadline Risk',
-                    'Dependency Unavailable'
-                ]
+        let nextEventId = 1;
+        let nextDateId = 1;
+        let nextPId = 6;
+        let nextThreatId = 6;
+        let nextRewardId = 6;
+        let nextFId = 5;
+
+        function addEvent() {
+            const input = document.getElementById('event-input');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter Event Name');
+                return;
             }
-        };
-
-        function addToHistory(action, details) {
-            const entry = {
-                id: Date.now(),
-                timestamp: new Date().toLocaleString('en-US'),
-                action,
-                details,
-                snapshot: JSON.parse(JSON.stringify({ tasks: state.tasks, criteria: state.criteria, ratings: state.ratings }))
-            };
-            state.history.unshift(entry);
-            saveState();
+            state.events.push({ id: nextEventId++, name });
+            input.value = '';
+            state.resultsDirty = true;
+            renderEventsList();
+            renderRatings();
         }
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(`${tabName}-screen`).classList.add('active');
+        function deleteEvent(id) {
+            if (!confirm('Delete this event? All associated ratings will be lost.')) return;
+            state.events = state.events.filter(e => e.id !== id);
+            const keysToDelete = Object.keys(state.ratings).filter(k => k.startsWith(`r_${id}_`));
+            keysToDelete.forEach(k => delete state.ratings[k]);
+            state.resultsDirty = true;
+            renderEventsList();
+            renderRatings();
         }
 
-        function renderTasks() {
-            const screen = document.getElementById('tasks-screen');
-            screen.innerHTML = `
-                <div class="card">
-                    <h2>📋 Add Your Tasks</h2>
-                    <div class="input-group">
-                        <input type="text" id="task-input" placeholder="Enter task name">
-                        <button class="btn btn-primary" onclick="addTask()">Add Task</button>
-                    </div>
+        function addDate() {
+            const input = document.getElementById('date-input');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter Date label');
+                return;
+            }
+            state.dates.push({ id: nextDateId++, name });
+            input.value = '';
+            state.resultsDirty = true;
+            renderDatesList();
+            renderRatings();
+        }
+
+        function deleteDate(id) {
+            if (!confirm('Delete this date? All associated ratings will be lost.')) return;
+            state.dates = state.dates.filter(d => d.id !== id);
+            const keysToDelete = Object.keys(state.ratings).filter(k => {
+                const parts = k.split('_');
+                return parts.length > 2 && parts[2] == id;
+            });
+            keysToDelete.forEach(k => delete state.ratings[k]);
+            state.resultsDirty = true;
+            renderDatesList();
+            renderRatings();
+        }
+
+        function addPCriteria() {
+            const input = document.getElementById('p-input');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter P Criteria name');
+                return;
+            }
+            state.pCriteria.push({ id: nextPId++, name });
+            input.value = '';
+            state.resultsDirty = true;
+            renderPCriteriaList();
+            renderRatings();
+        }
+
+        function deletePCriteria(id) {
+            if (!confirm('Delete this P criteria? All associated ratings will be lost.')) return;
+            state.pCriteria = state.pCriteria.filter(c => c.id !== id);
+            const keysToDelete = Object.keys(state.ratings).filter(k => 
+                k.includes(`_P_${id}`) || k.includes(`_P_weight_${id}`)
+            );
+            keysToDelete.forEach(k => delete state.ratings[k]);
+            state.resultsDirty = true;
+            renderPCriteriaList();
+            renderRatings();
+        }
+
+        function addThreatCriteria() {
+            const input = document.getElementById('threat-input');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter Threat Criteria name');
+                return;
+            }
+            state.threatCriteria.push({ id: nextThreatId++, name });
+            input.value = '';
+            state.resultsDirty = true;
+            renderThreatCriteriaList();
+            renderRatings();
+        }
+
+        function deleteThreatCriteria(id) {
+            if (!confirm('Delete this Threat criteria? All associated ratings will be lost.')) return;
+            state.threatCriteria = state.threatCriteria.filter(c => c.id !== id);
+            const keysToDelete = Object.keys(state.ratings).filter(k => 
+                k.includes(`_T_threat_${id}`) || k.includes(`_T_threat_weight_${id}`)
+            );
+            keysToDelete.forEach(k => delete state.ratings[k]);
+            state.resultsDirty = true;
+            renderThreatCriteriaList();
+            renderRatings();
+        }
+
+        function addRewardCriteria() {
+            const input = document.getElementById('reward-input');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter Reward Criteria name');
+                return;
+            }
+            state.rewardCriteria.push({ id: nextRewardId++, name });
+            input.value = '';
+            state.resultsDirty = true;
+            renderRewardCriteriaList();
+            renderRatings();
+        }
+
+        function deleteRewardCriteria(id) {
+            if (!confirm('Delete this Reward criteria? All associated ratings will be lost.')) return;
+            state.rewardCriteria = state.rewardCriteria.filter(c => c.id !== id);
+            const keysToDelete = Object.keys(state.ratings).filter(k => 
+                k.includes(`_T_reward_${id}`) || k.includes(`_T_reward_weight_${id}`)
+            );
+            keysToDelete.forEach(k => delete state.ratings[k]);
+            state.resultsDirty = true;
+            renderRewardCriteriaList();
+            renderRatings();
+        }
+
+        function addFCriteria() {
+            const input = document.getElementById('f-input');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Please enter F Criteria name');
+                return;
+            }
+            state.fCriteria.push({ id: nextFId++, name });
+            input.value = '';
+            state.resultsDirty = true;
+            renderFCriteriaList();
+            renderRatings();
+        }
+
+        function deleteFCriteria(id) {
+            if (!confirm('Delete this F criteria? All associated ratings will be lost.')) return;
+            state.fCriteria = state.fCriteria.filter(c => c.id !== id);
+            const keysToDelete = Object.keys(state.ratings).filter(k => 
+                k.includes(`_F_${id}`) || k.includes(`_F_weight_${id}`)
+            );
+            keysToDelete.forEach(k => delete state.ratings[k]);
+            state.resultsDirty = true;
+            renderFCriteriaList();
+            renderRatings();
+        }
+
+        function renderEventsList() {
+            const container = document.getElementById('events-list');
+            if (state.events.length === 0) {
+                container.innerHTML = '<div class="empty-state">No events added yet</div>';
+                return;
+            }
+            container.innerHTML = state.events.map(e => `
+                <div class="item">
+                    <span>${e.name}</span>
+                    <button class="btn btn-delete" onclick="deleteEvent(${e.id})">🗑️ Delete</button>
                 </div>
-                <div class="card">
-                    <h2>Your Tasks (${state.tasks.length})</h2>
-                    ${state.tasks.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">📝</div><p>No tasks yet. Add your first task above!</p></div>' : ''}
-                    <div class="item-list">
-                        ${state.tasks.map(task => `
-                            <div class="item">
-                                <div class="item-content">
-                                    <strong>${task.name}</strong>
-                                </div>
-                                <div class="item-actions">
-                                    <button class="btn btn-primary btn-small" onclick="editTask(${task.id})">Edit</button>
-                                    <button class="btn btn-danger btn-small" onclick="deleteTask(${task.id})">Delete</button>
-                                </div>
-                            </div>
-                        `).join('')}
+            `).join('');
+        }
+
+        function renderDatesList() {
+            const container = document.getElementById('dates-list');
+            if (state.dates.length === 0) {
+                container.innerHTML = '<div class="empty-state">No dates added yet</div>';
+                return;
+            }
+            container.innerHTML = state.dates.map(d => `
+                <div class="item">
+                    <span>${d.name}</span>
+                    <button class="btn btn-delete" onclick="deleteDate(${d.id})">🗑️ Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function renderPCriteriaList() {
+            const container = document.getElementById('p-criteria-list');
+            if (state.pCriteria.length === 0) {
+                container.innerHTML = '<div class="empty-state">No P criteria</div>';
+                return;
+            }
+            container.innerHTML = state.pCriteria.map(c => `
+                <div class="item">
+                    <span>${c.name}</span>
+                    <button class="btn btn-delete" onclick="deletePCriteria(${c.id})">🗑️ Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function renderThreatCriteriaList() {
+            const container = document.getElementById('threat-criteria-list');
+            if (state.threatCriteria.length === 0) {
+                container.innerHTML = '<div class="empty-state">No Threat criteria</div>';
+                return;
+            }
+            container.innerHTML = state.threatCriteria.map(c => `
+                <div class="item">
+                    <span>${c.name}</span>
+                    <button class="btn btn-delete" onclick="deleteThreatCriteria(${c.id})">🗑️ Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function renderRewardCriteriaList() {
+            const container = document.getElementById('reward-criteria-list');
+            if (state.rewardCriteria.length === 0) {
+                container.innerHTML = '<div class="empty-state">No Reward criteria</div>';
+                return;
+            }
+            container.innerHTML = state.rewardCriteria.map(c => `
+                <div class="item">
+                    <span>${c.name}</span>
+                    <button class="btn btn-delete" onclick="deleteRewardCriteria(${c.id})">🗑️ Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function renderFCriteriaList() {
+            const container = document.getElementById('f-criteria-list');
+            if (state.fCriteria.length === 0) {
+                container.innerHTML = '<div class="empty-state">No F criteria</div>';
+                return;
+            }
+            container.innerHTML = state.fCriteria.map(c => `
+                <div class="item">
+                    <span>${c.name}</span>
+                    <button class="btn btn-delete" onclick="deleteFCriteria(${c.id})">🗑️ Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function updateRating(key, value) {
+            state.ratings[key] = parseFloat(value);
+            document.getElementById(`val-${key}`).textContent = parseFloat(value).toFixed(1);
+            state.resultsDirty = true;
+        }
+
+        function createSlider(key, label) {
+            const value = state.ratings[key] || 5.0;
+            return `
+                <div class="slider-wrapper">
+                    <div class="slider-label">${label}</div>
+                    <div class="slider-container">
+                        <input type="range" min="0" max="10" step="0.5" value="${value}" 
+                            class="slider-vertical" 
+                            oninput="updateRating('${key}', this.value)">
                     </div>
+                    <div class="slider-value" id="val-${key}">${value.toFixed(1)}</div>
                 </div>
             `;
         }
 
-        function addTask() {
-            const input = document.getElementById('task-input');
-            const name = input.value.trim();
-            if (!name) {
-                alert('Please enter a task name');
-                return;
-            }
-            const task = { id: Date.now(), name };
-            state.tasks.push(task);
-            addToHistory('Task Added', `Added task: ${name}`);
-            input.value = '';
-            renderTasks();
-            renderRating();
-        }
-
-        function editTask(id) {
-            const task = state.tasks.find(t => t.id === id);
-            const newName = prompt('Edit task name:', task.name);
-            if (newName && newName.trim() && newName !== task.name) {
-                task.name = newName.trim();
-                addToHistory('Task Edited', `Edited task to: ${newName}`);
-                renderTasks();
-                renderRating();
-            }
-        }
-
-        function deleteTask(id) {
-            const task = state.tasks.find(t => t.id === id);
-            if (confirm(`Delete task "${task.name}"?`)) {
-                state.tasks = state.tasks.filter(t => t.id !== id);
-                delete state.ratings[id];
-                addToHistory('Task Deleted', `Deleted task: ${task.name}`);
-                renderTasks();
-                renderRating();
-            }
-        }
-
-        function renderCriteria(group) {
-            const config = groupConfig[group];
-            const screen = document.getElementById(`${group}-screen`);
-            const groupCriteria = state.criteria.filter(c => c.group === group);
+        function renderRatings() {
+            const container = document.getElementById('ratings-container');
             
-            screen.innerHTML = `
-                <div class="card">
-                    <h2>${config.icon} ${config.label} Criteria</h2>
-                    <div class="info-box">
-                        <ul>
-                            ${config.info.map(item => `<li>${item}</li>`).join('')}
-                        </ul>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" id="${group}-criteria-input" placeholder="Criteria Name">
-                        <button class="btn btn-primary" onclick="addCriteria('${group}')">Add Criteria</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <h2>Your ${config.label} Criteria (${groupCriteria.length})</h2>
-                    ${groupCriteria.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">✨</div><p>No criteria yet. Add your first criterion above!</p></div>' : ''}
-                    <div class="item-list">
-                        ${groupCriteria.map(c => `
-                            <div class="item">
-                                <div class="item-content">
-                                    <strong>${c.name}</strong>
-                                    <span class="badge badge-${c.group}">${config.label}</span>
-                                    <span class="badge badge-${c.type}">${c.type === 'benefit' ? 'Benefit' : 'Cost'}</span>
-                                    <div style="margin-top: 5px; font-size: 14px; color: var(--color-text-secondary);">
-                                        Weight: ${c.weight}/5 ${c.weight === 0 ? '(Ignored)' : ''}
-                                    </div>
-                                </div>
-                                <div class="item-actions">
-                                    <button class="btn btn-primary btn-small" onclick="editCriteriaName(${c.id})">Edit Name</button>
-                                    <button class="btn btn-danger btn-small" onclick="deleteCriteria(${c.id})">Delete</button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function addCriteria(group) {
-            const input = document.getElementById(`${group}-criteria-input`);
-            const name = input.value.trim();
-            if (!name) {
-                alert('Please enter a criteria name');
-                return;
-            }
-            const config = groupConfig[group];
-            const criteria = {
-                id: Date.now(),
-                name,
-                group,
-                type: config.type,
-                weight: config.weight
-            };
-            state.criteria.push(criteria);
-            addToHistory('Criteria Added', `Added criteria: ${name} (${config.label})`);
-            input.value = '';
-            renderCriteria(group);
-            renderRating();
-        }
-
-        function editCriteriaName(id) {
-            const criteria = state.criteria.find(c => c.id === id);
-            const newName = prompt('Edit criteria name:', criteria.name);
-            if (newName && newName.trim() && newName !== criteria.name) {
-                criteria.name = newName.trim();
-                addToHistory('Criteria Edited', `Edited criteria to: ${newName}`);
-                renderCriteria(criteria.group);
-                renderRating();
-            }
-        }
-
-        function deleteCriteria(id) {
-            const criteria = state.criteria.find(c => c.id === id);
-            if (confirm(`Delete criteria "${criteria.name}"?`)) {
-                state.criteria = state.criteria.filter(c => c.id !== id);
-                Object.keys(state.ratings).forEach(taskId => {
-                    if (state.ratings[taskId][id] !== undefined) {
-                        delete state.ratings[taskId][id];
-                    }
-                });
-                addToHistory('Criteria Deleted', `Deleted criteria: ${criteria.name}`);
-                renderCriteria(criteria.group);
-                renderRating();
-            }
-        }
-
-        function renderRating() {
-            const screen = document.getElementById('rating-screen');
-            
-            const taskCards = state.tasks.map(task => {
-                const groups = ['short', 'long', 'imaginary', 'actual'];
-                const sections = groups.map(group => {
-                    const groupCriteria = state.criteria.filter(c => c.group === group);
-                    const config = groupConfig[group];
-                    
-                    if (groupCriteria.length === 0) {
-                        return `
-                            <div class="rating-section">
-                                <h4>${config.icon} ${config.label}</h4>
-                                <p style="color: var(--color-text-secondary); font-size: 14px;">No criteria added yet.</p>
-                            </div>
-                        `;
-                    }
-                    
-                    return `
-                        <div class="rating-section">
-                            <h4>${config.icon} ${config.label}</h4>
-                            ${groupCriteria.map(c => {
-                                if (!state.ratings[task.id]) state.ratings[task.id] = {};
-                                if (state.ratings[task.id][c.id] === undefined) state.ratings[task.id][c.id] = 3;
-                                const value = state.ratings[task.id][c.id];
-                                return `
-                                    <div class="slider-row">
-                                        <div class="slider-label">${c.name}</div>
-                                        <div class="slider-container">
-                                            <input type="range" min="0" max="5" step="1" value="${value}" 
-                                                onchange="updateRating(${task.id}, ${c.id}, this.value)">
-                                            <div class="slider-value">${value}/5</div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `;
-                }).join('');
-                
-                return `
-                    <div class="task-card">
-                        <h3>📋 ${task.name}</h3>
-                        ${sections}
+            if (state.events.length === 0 || state.dates.length === 0) {
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="empty-state">Add events and dates first to start rating</div>
                     </div>
                 `;
-            }).join('');
+                return;
+            }
 
-            const weightSection = state.criteria.length > 0 ? `
-                <div class="card">
-                    <h2>⚖️ Criteria Weight Assignment</h2>
-                    <p style="margin-bottom: 20px; color: var(--color-text-secondary);">
-                        Set importance (0–5) for each criterion. Higher weight = stronger impact on final priority.
-                    </p>
-                    <div class="info-box">
-                        <p><strong>Reminder:</strong></p>
-                        <ul>
-                            <li>Short-Term reward → lower typical weights</li>
-                            <li>Long-Term reward → higher typical weights</li>
-                            <li>Imaginary cost → lower penalty</li>
-                            <li>Actual cost → higher penalty</li>
-                        </ul>
-                    </div>
-                    ${state.criteria.map(c => {
-                        const config = groupConfig[c.group];
-                        return `
-                            <div class="slider-row">
-                                <div class="slider-label">
-                                    ${c.name}
-                                    <span class="badge badge-${c.group}">${config.label.split('(')[0].trim()}</span>
-                                    <span class="badge badge-${c.type}">${c.type === 'benefit' ? 'Benefit' : 'Cost'}</span>
-                                </div>
-                                <div class="slider-container">
-                                    <input type="range" min="0" max="5" step="1" value="${c.weight}" 
-                                        onchange="updateWeight(${c.id}, this.value)">
-                                    <div class="slider-value">${c.weight}/5 ${c.weight === 0 ? '(Ignore)' : ''}</div>
+            let html = '';
+            
+            for (const event of state.events) {
+                for (const date of state.dates) {
+                    html += `
+                        <div class="rating-card">
+                            <div class="rating-card-header">${event.name} | ${date.name}</div>
+                            
+                            <div class="rating-section">
+                                <h4>STEP 1: Criteria Weights – How important is each factor?</h4>
+                                <div class="sliders-grid">
+                    `;
+
+                    for (const pc of state.pCriteria) {
+                        const key = `r_${event.id}_${date.id}_P_weight_${pc.id}`;
+                        html += createSlider(key, `P Weight: ${pc.name}`);
+                    }
+
+                    for (const tc of state.threatCriteria) {
+                        const key = `r_${event.id}_${date.id}_T_threat_weight_${tc.id}`;
+                        html += createSlider(key, `🔴 T Weight: ${tc.name}`);
+                    }
+
+                    for (const rc of state.rewardCriteria) {
+                        const key = `r_${event.id}_${date.id}_T_reward_weight_${rc.id}`;
+                        html += createSlider(key, `🔵 T Weight: ${rc.name}`);
+                    }
+
+                    for (const fc of state.fCriteria) {
+                        const key = `r_${event.id}_${date.id}_F_weight_${fc.id}`;
+                        html += createSlider(key, `F Weight: ${fc.name}`);
+                    }
+
+                    html += createSlider(`r_${event.id}_${date.id}_D_weight`, 'D Weight: Time Delay');
+                    html += createSlider(`r_${event.id}_${date.id}_R_weight`, 'R Weight: Recall Freq');
+                    html += createSlider(`r_${event.id}_${date.id}_S_weight`, 'S Weight: Self-Relevance');
+
+                    html += `
                                 </div>
                             </div>
-                        `;
-                    }).join('')}
-                </div>
-            ` : '';
 
-            const notice = `
-                <div class="notice ${state.ratingsChanged ? '' : 'hidden'}" id="regen-notice">
-                    <div>
-                        You have changed ratings or criteria weights. Tap the button to regenerate results.
+                            <div class="rating-section">
+                                <h4>STEP 2: Ratings</h4>
+                                
+                                <h4 style="margin-top: 16px;">P – Person Relevance Ratings</h4>
+                                <div class="sliders-grid">
+                    `;
+
+                    for (const pc of state.pCriteria) {
+                        const key = `r_${event.id}_${date.id}_P_${pc.id}`;
+                        html += createSlider(key, pc.name);
+                    }
+
+                    html += `
+                                </div>
+                                
+                                <h4 style="margin-top: 16px;">T – Threat / Reward Ratings</h4>
+                                <div class="sliders-grid">
+                    `;
+
+                    for (const tc of state.threatCriteria) {
+                        const key = `r_${event.id}_${date.id}_T_threat_${tc.id}`;
+                        html += createSlider(key, `🔴 ${tc.name}`);
+                    }
+
+                    for (const rc of state.rewardCriteria) {
+                        const key = `r_${event.id}_${date.id}_T_reward_${rc.id}`;
+                        html += createSlider(key, `🔵 ${rc.name}`);
+                    }
+
+                    html += `
+                                </div>
+                                
+                                <h4 style="margin-top: 16px;">F – Future Relevance Ratings</h4>
+                                <div class="sliders-grid">
+                    `;
+
+                    for (const fc of state.fCriteria) {
+                        const key = `r_${event.id}_${date.id}_F_${fc.id}`;
+                        html += createSlider(key, fc.name);
+                    }
+
+                    html += `
+                                </div>
+                                
+                                <h4 style="margin-top: 16px;">D, R, S Ratings</h4>
+                                <div class="sliders-grid">
+                    `;
+
+                    html += createSlider(`r_${event.id}_${date.id}_D`, 'D: Recency (10=recent, 0=old)');
+                    html += createSlider(`r_${event.id}_${date.id}_R`, 'R: Recall Frequency');
+                    html += createSlider(`r_${event.id}_${date.id}_S`, 'S: Self-Relevance');
+
+                    html += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            if (state.events.length > 0 && state.dates.length > 0) {
+                html += `
+                    <div class="regenerate-notice">
+                        <strong>Ratings or criteria have changed. Click to regenerate results.</strong>
+                        <button class="btn" onclick="regenerateResults()">🔄 Regenerate Results</button>
                     </div>
-                    <button class="btn btn-primary" onclick="regenerateResults()">Regenerate Results</button>
-                </div>
-            `;
+                `;
+            }
 
-            screen.innerHTML = `
-                <div class="card">
-                    <h2>⭐ Rate Your Tasks</h2>
-                    <p style="color: var(--color-text-secondary); margin-bottom: 20px;">
-                        Slide from 0 (No Impact) to 5 (Maximum Impact) for each criterion.
-                    </p>
-                </div>
-                ${state.tasks.length === 0 ? '<div class="empty-state"><div class="empty-state-icon">📝</div><p>No tasks yet. Add tasks first!</p></div>' : taskCards}
-                ${weightSection}
-                ${notice}
-            `;
-        }
-
-        function updateRating(taskId, criteriaId, value) {
-            if (!state.ratings[taskId]) state.ratings[taskId] = {};
-            state.ratings[taskId][criteriaId] = parseInt(value);
-            state.ratingsChanged = true;
-            saveState();
-            renderRating();
-        }
-
-        function updateWeight(criteriaId, value) {
-            const criteria = state.criteria.find(c => c.id === criteriaId);
-            criteria.weight = parseInt(value);
-            state.ratingsChanged = true;
-            saveState();
-            renderRating();
+            container.innerHTML = html;
         }
 
         function regenerateResults() {
-            addToHistory('Results Regenerated', 'User regenerated results after changes');
-            state.ratingsChanged = false;
             calculateResults();
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelector('.tab:nth-child(7)').classList.add('active');
-            document.getElementById('results-screen').classList.add('active');
-            alert('✅ New results generated successfully!');
+            state.resultsDirty = false;
+            switchTab('results');
         }
 
         function calculateResults() {
-            const results = state.tasks.map(task => {
-                let benefitScore = 0;
-                let costScore = 0;
-                const benefitDetails = [];
-                const costDetails = [];
-
-                state.criteria.forEach(c => {
-                    const rating = (state.ratings[task.id] && state.ratings[task.id][c.id] !== undefined) 
-                        ? state.ratings[task.id][c.id] 
-                        : 3;
-                    const weight = c.weight;
-                    const score = weight * rating;
-
-                    if (c.type === 'benefit') {
-                        benefitScore += score;
-                        benefitDetails.push({ name: c.name, weight, rating, score });
-                    } else {
-                        costScore += score;
-                        costDetails.push({ name: c.name, weight, rating, score });
-                    }
-                });
-
-                const finalScore = benefitScore - costScore;
-                return { task, benefitScore, costScore, finalScore, benefitDetails, costDetails };
-            });
-
-            results.sort((a, b) => b.finalScore - a.finalScore);
-
-            const totalPositiveScores = results.reduce((sum, r) => sum + Math.max(r.finalScore, 0), 0);
-            results.forEach(r => {
-                r.percentage = totalPositiveScores > 0 ? ((Math.max(r.finalScore, 0) / totalPositiveScores) * 100).toFixed(1) : 0;
-            });
-
-            renderResults(results);
-            saveState();
-        }
-
-        function renderResults(results) {
-            const screen = document.getElementById('results-screen');
+            const container = document.getElementById('results-container');
             
-            if (results.length === 0) {
-                screen.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏆</div><p>No results yet. Add tasks and criteria first!</p></div>';
-                return;
-            }
-
-            const medals = ['🥇', '🥈', '🥉'];
-            
-            screen.innerHTML = results.map((r, index) => {
-                const medal = index < 3 ? medals[index] : '📌';
-                return `
-                    <div class="result-card">
-                        <div class="result-header">
-                            <span class="medal">${medal}</span>
-                            <h3>${r.task.name}</h3>
-                            <span class="result-score">${r.finalScore.toFixed(1)}</span>
-                        </div>
-                        
-                        <div class="result-summary">
-                            <div class="summary-item">
-                                <div class="label">Benefits</div>
-                                <div class="value" style="color: #22c55e;">+${r.benefitScore.toFixed(1)}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="label">Costs</div>
-                                <div class="value" style="color: #ef4444;">-${r.costScore.toFixed(1)}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="label">Score</div>
-                                <div class="value" style="color: var(--color-primary);">${r.finalScore.toFixed(1)}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="label">Rank</div>
-                                <div class="value">#${index + 1}</div>
-                            </div>
-                            <div class="summary-item">
-                                <div class="label">Priority</div>
-                                <div class="value">${r.percentage}%</div>
-                            </div>
-                        </div>
-
-                        <div class="breakdown">
-                            <h4>✅ Benefit Calculations</h4>
-                            ${r.benefitDetails.length === 0 ? '<p style="color: var(--color-text-secondary); font-size: 14px;">No benefit criteria</p>' : ''}
-                            ${r.benefitDetails.map(d => `
-                                <div class="breakdown-item">
-                                    ${d.name}: ${d.weight} × ${d.rating} = ${d.score.toFixed(1)}
-                                </div>
-                            `).join('')}
-                            
-                            <h4>❌ Cost Calculations</h4>
-                            ${r.costDetails.length === 0 ? '<p style="color: var(--color-text-secondary); font-size: 14px;">No cost criteria</p>' : ''}
-                            ${r.costDetails.map(d => `
-                                <div class="breakdown-item">
-                                    ${d.name}: ${d.weight} × ${d.rating} = ${d.score.toFixed(1)}
-                                </div>
-                            `).join('')}
-                            
-                            <div class="formula-box">
-                                Final Score = ${r.benefitScore.toFixed(1)} - ${r.costScore.toFixed(1)} = ${r.finalScore.toFixed(1)}
-                            </div>
-                        </div>
+            if (state.events.length === 0 || state.dates.length === 0) {
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="empty-state">Add events, dates, and ratings to see results.</div>
                     </div>
                 `;
-            }).join('');
-        }
-
-        function renderHistory() {
-            const screen = document.getElementById('history-screen');
-            
-            if (state.history.length === 0) {
-                screen.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📜</div><p>No history yet. Your actions will appear here!</p></div>';
                 return;
             }
 
-            screen.innerHTML = `
+            let html = `
+                <div class="info-box">
+                    <h3>📐 New Calculation Formulas</h3>
+                    <p><strong>Step 1:</strong> Focus_raw = Σ(P Rating × P Weight) + Σ(T Rating × T Weight) + Σ(F Rating × F Weight)</p>
+                    <p><strong>Step 2:</strong> Focus_rel% = (Focus_raw / (Σ(10 × P Weight) + Σ(10 × T Weight) + Σ(10 × F Weight))) × 100</p>
+                    <p><strong>Step 3:</strong> Focus_abs% = (Focus_raw / (100 × Total Criteria Count)) × 100</p>
+                    <p><strong>Step 4:</strong> Normalize D,R,S weights: Wd' = D Weight / (D+R+S Weights), similarly Wr', Ws'</p>
+                    <p><strong>Step 5:</strong> Retention = (D Rating/10 × Wd') + (R Rating/10 × Wr') + (S Rating/10 × Ws')</p>
+                    <p><strong>Step 6:</strong> Memory_rel% = Focus_rel% × Retention, Memory_abs% = Focus_abs% × Retention</p>
+                    <p style="margin-top: 12px;"><strong>D</strong> = Time Delay (10=recent, 0=old) | <strong>R</strong> = Recall Frequency | <strong>S</strong> = Self-Relevance</p>
+                </div>
+
                 <div class="card">
-                    <h2>📜 Activity History (${state.history.length})</h2>
-                    ${state.history.map(h => `
-                        <div class="history-item">
-                            <div class="history-header">
-                                <div class="history-info">
-                                    <strong>${h.action}</strong>
-                                    <p style="font-size: 14px; color: var(--color-text-secondary); margin-top: 5px;">${h.details}</p>
-                                    <div class="history-time">${h.timestamp}</div>
+                    <h2>Results Table</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Date</th>
+                                <th>Focus Raw</th>
+                                <th>Focus Rel %</th>
+                                <th>Focus Abs %</th>
+                                <th>Retention</th>
+                                <th>Memory Rel %</th>
+                                <th>Memory Abs %</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            let resultIndex = 0;
+            for (const event of state.events) {
+                for (const date of state.dates) {
+                    let weightedP = 0;
+                    let pDetails = [];
+                    for (const pc of state.pCriteria) {
+                        const rating = state.ratings[`r_${event.id}_${date.id}_P_${pc.id}`] || 5;
+                        const weight = state.ratings[`r_${event.id}_${date.id}_P_weight_${pc.id}`] || 5;
+                        const product = rating * weight;
+                        weightedP += product;
+                        pDetails.push({ name: pc.name, rating, weight, product });
+                    }
+
+                    let weightedT = 0;
+                    let threatDetails = [];
+                    let rewardDetails = [];
+                    for (const tc of state.threatCriteria) {
+                        const rating = state.ratings[`r_${event.id}_${date.id}_T_threat_${tc.id}`] || 5;
+                        const weight = state.ratings[`r_${event.id}_${date.id}_T_threat_weight_${tc.id}`] || 5;
+                        const product = rating * weight;
+                        weightedT += product;
+                        threatDetails.push({ name: tc.name, rating, weight, product });
+                    }
+                    for (const rc of state.rewardCriteria) {
+                        const rating = state.ratings[`r_${event.id}_${date.id}_T_reward_${rc.id}`] || 5;
+                        const weight = state.ratings[`r_${event.id}_${date.id}_T_reward_weight_${rc.id}`] || 5;
+                        const product = rating * weight;
+                        weightedT += product;
+                        rewardDetails.push({ name: rc.name, rating, weight, product });
+                    }
+
+                    let weightedF = 0;
+                    let fDetails = [];
+                    for (const fc of state.fCriteria) {
+                        const rating = state.ratings[`r_${event.id}_${date.id}_F_${fc.id}`] || 5;
+                        const weight = state.ratings[`r_${event.id}_${date.id}_F_weight_${fc.id}`] || 5;
+                        const product = rating * weight;
+                        weightedF += product;
+                        fDetails.push({ name: fc.name, rating, weight, product });
+                    }
+
+                    const Dval = state.ratings[`r_${event.id}_${date.id}_D`] || 5;
+                    const Dweight = state.ratings[`r_${event.id}_${date.id}_D_weight`] || 5;
+                    const weightedD = Dval * Dweight;
+
+                    const Rval = state.ratings[`r_${event.id}_${date.id}_R`] || 5;
+                    const Rweight = state.ratings[`r_${event.id}_${date.id}_R_weight`] || 5;
+                    const weightedR = Rval * Rweight;
+
+                    const Sval = state.ratings[`r_${event.id}_${date.id}_S`] || 5;
+                    const Sweight = state.ratings[`r_${event.id}_${date.id}_S_weight`] || 5;
+                    const weightedS = Sval * Sweight;
+
+                    const focusRaw = weightedP + weightedT + weightedF;
+
+                    const totalCriteriaCount = state.pCriteria.length + state.threatCriteria.length + state.rewardCriteria.length + state.fCriteria.length;
+
+                    let maxWeightedSum = 0;
+                    for (const pc of state.pCriteria) {
+                        const weight = state.ratings[`r_${event.id}_${date.id}_P_weight_${pc.id}`] || 5;
+                        maxWeightedSum += 10 * weight;
+                    }
+                    for (const tc of state.threatCriteria) {
+                        const weight = state.ratings[`r_${event.id}_${date.id}_T_threat_weight_${tc.id}`] || 5;
+                        maxWeightedSum += 10 * weight;
+                    }
+                    for (const rc of state.rewardCriteria) {
+                        const weight = state.ratings[`r_${event.id}_${date.id}_T_reward_weight_${rc.id}`] || 5;
+                        maxWeightedSum += 10 * weight;
+                    }
+                    for (const fc of state.fCriteria) {
+                        const weight = state.ratings[`r_${event.id}_${date.id}_F_weight_${fc.id}`] || 5;
+                        maxWeightedSum += 10 * weight;
+                    }
+
+                    const focusRelPercent = maxWeightedSum > 0 ? (focusRaw / maxWeightedSum) * 100 : 0;
+                    const focusAbsPercent = totalCriteriaCount > 0 ? (focusRaw / (100 * totalCriteriaCount)) * 100 : 0;
+
+                    const wSum = Dweight + Rweight + Sweight;
+                    const wdNorm = wSum > 0 ? Dweight / wSum : 0.333;
+                    const wrNorm = wSum > 0 ? Rweight / wSum : 0.333;
+                    const wsNorm = wSum > 0 ? Sweight / wSum : 0.333;
+
+                    const retention = (Dval / 10 * wdNorm) + (Rval / 10 * wrNorm) + (Sval / 10 * wsNorm);
+
+                    let memoryRelPercent = focusRelPercent * retention;
+                    let memoryAbsPercent = focusAbsPercent * retention;
+
+                    memoryRelPercent = Math.min(memoryRelPercent, focusRelPercent);
+                    memoryAbsPercent = Math.min(memoryAbsPercent, focusAbsPercent);
+
+                    html += `
+                        <tr>
+                            <td>${event.name}</td>
+                            <td>${date.name}</td>
+                            <td>${focusRaw.toFixed(2)}</td>
+                            <td><span class="badge badge-focus">${focusRelPercent.toFixed(1)}%</span></td>
+                            <td>${focusAbsPercent.toFixed(1)}%</td>
+                            <td>${retention.toFixed(3)}</td>
+                            <td><span class="badge badge-memory">${memoryRelPercent.toFixed(1)}%</span></td>
+                            <td>${memoryAbsPercent.toFixed(1)}%</td>
+                            <td>
+                                <button class="btn btn-show-calc" onclick="toggleCalc(${resultIndex})">📊 Show Calc</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="13" style="padding: 0;">
+                                <div id="calc-${resultIndex}" class="calculation-details">
+                                    <div class="calc-group">
+                                        <h5>P – Person Relevance Breakdown</h5>
+                                        ${pDetails.map(d => `<div class="calc-item">${d.name}: ${d.rating.toFixed(1)} × ${d.weight.toFixed(1)} = ${d.product.toFixed(2)}</div>`).join('')}
+                                        <div class="calc-item" style="font-weight: bold; margin-top: 8px;">Total Weighted P = ${weightedP.toFixed(2)}</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>T – Threat / Reward Breakdown</h5>
+                                        <div style="margin-bottom: 8px;"><strong class="threat-icon">🔴 Threat:</strong></div>
+                                        ${threatDetails.map(d => `<div class="calc-item">${d.name}: ${d.rating.toFixed(1)} × ${d.weight.toFixed(1)} = ${d.product.toFixed(2)}</div>`).join('')}
+                                        <div style="margin-top: 12px; margin-bottom: 8px;"><strong class="reward-icon">🔵 Reward:</strong></div>
+                                        ${rewardDetails.map(d => `<div class="calc-item">${d.name}: ${d.rating.toFixed(1)} × ${d.weight.toFixed(1)} = ${d.product.toFixed(2)}</div>`).join('')}
+                                        <div class="calc-item" style="font-weight: bold; margin-top: 8px;">Total Weighted T = ${weightedT.toFixed(2)}</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>F – Future Relevance Breakdown</h5>
+                                        ${fDetails.map(d => `<div class="calc-item">${d.name}: ${d.rating.toFixed(1)} × ${d.weight.toFixed(1)} = ${d.product.toFixed(2)}</div>`).join('')}
+                                        <div class="calc-item" style="font-weight: bold; margin-top: 8px;">Total Weighted F = ${weightedF.toFixed(2)}</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>D, R, S Details</h5>
+                                        <div class="calc-item">D (Time Delay): ${Dval.toFixed(1)} × ${Dweight.toFixed(1)} = ${weightedD.toFixed(2)}</div>
+                                        <div class="calc-item">R (Recall Frequency): ${Rval.toFixed(1)} × ${Rweight.toFixed(1)} = ${weightedR.toFixed(2)}</div>
+                                        <div class="calc-item">S (Self-Relevance): ${Sval.toFixed(1)} × ${Sweight.toFixed(1)} = ${weightedS.toFixed(2)}</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>Step 1: Focus Raw</h5>
+                                        <div class="calc-item">Focus_raw = ${weightedP.toFixed(2)} + ${weightedT.toFixed(2)} + ${weightedF.toFixed(2)} = ${focusRaw.toFixed(2)}</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>Step 2: Focus Relative %</h5>
+                                        <div class="calc-item">Max Weighted Sum = ${maxWeightedSum.toFixed(2)}</div>
+                                        <div class="calc-item">Focus_rel% = (${focusRaw.toFixed(2)} / ${maxWeightedSum.toFixed(2)}) × 100 = ${focusRelPercent.toFixed(2)}%</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>Step 3: Focus Absolute %</h5>
+                                        <div class="calc-item">Total Criteria = ${totalCriteriaCount}</div>
+                                        <div class="calc-item">Focus_abs% = (${focusRaw.toFixed(2)} / (100 × ${totalCriteriaCount})) × 100 = ${focusAbsPercent.toFixed(2)}%</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>Step 4: Normalized D,R,S Weights</h5>
+                                        <div class="calc-item">Weight Sum = ${Dweight.toFixed(1)} + ${Rweight.toFixed(1)} + ${Sweight.toFixed(1)} = ${wSum.toFixed(2)}</div>
+                                        <div class="calc-item">Wd' = ${Dweight.toFixed(1)} / ${wSum.toFixed(2)} = ${wdNorm.toFixed(3)}</div>
+                                        <div class="calc-item">Wr' = ${Rweight.toFixed(1)} / ${wSum.toFixed(2)} = ${wrNorm.toFixed(3)}</div>
+                                        <div class="calc-item">Ws' = ${Sweight.toFixed(1)} / ${wSum.toFixed(2)} = ${wsNorm.toFixed(3)}</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>Step 5: Retention Factor</h5>
+                                        <div class="calc-item">Retention = (${Dval.toFixed(1)}/10 × ${wdNorm.toFixed(3)}) + (${Rval.toFixed(1)}/10 × ${wrNorm.toFixed(3)}) + (${Sval.toFixed(1)}/10 × ${wsNorm.toFixed(3)})</div>
+                                        <div class="calc-item">Retention = ${retention.toFixed(3)}</div>
+                                    </div>
+
+                                    <div class="calc-group">
+                                        <h5>Step 6: Memory Scores</h5>
+                                        <div class="calc-item">Memory_rel% = ${focusRelPercent.toFixed(2)}% × ${retention.toFixed(3)} = ${memoryRelPercent.toFixed(2)}%</div>
+                                        <div class="calc-item">Memory_abs% = ${focusAbsPercent.toFixed(2)}% × ${retention.toFixed(3)} = ${memoryAbsPercent.toFixed(2)}%</div>
+                                    </div>
                                 </div>
-                                <div class="item-actions">
-                                    <button class="btn btn-primary btn-small" onclick="restoreHistory(${h.id})">Restore</button>
-                                    <button class="btn btn-danger btn-small" onclick="deleteHistory(${h.id})">Delete</button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
+                            </td>
+                        </tr>
+                    `;
+                    resultIndex++;
+                }
+            }
+
+            html += `
+                        </tbody>
+                    </table>
                 </div>
             `;
+
+            container.innerHTML = html;
         }
 
-        function restoreHistory(id) {
-            const entry = state.history.find(h => h.id === id);
-            if (confirm('Restore to this point? Current state will be lost.')) {
-                state.tasks = JSON.parse(JSON.stringify(entry.snapshot.tasks));
-                state.criteria = JSON.parse(JSON.stringify(entry.snapshot.criteria));
-                state.ratings = JSON.parse(JSON.stringify(entry.snapshot.ratings));
-                addToHistory('State Restored', `Restored to: ${entry.action}`);
-                renderAll();
+        function toggleCalc(index) {
+            const elem = document.getElementById(`calc-${index}`);
+            elem.classList.toggle('active');
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            if (tabName === 'results' && state.resultsDirty) {
+                calculateResults();
+                state.resultsDirty = false;
             }
         }
 
-        function deleteHistory(id) {
-            if (confirm('Delete this history entry?')) {
-                state.history = state.history.filter(h => h.id !== id);
-                saveState();
-                renderHistory();
-            }
-        }
-
-        function renderAll() {
-            renderTasks();
-            renderCriteria('short');
-            renderCriteria('long');
-            renderCriteria('imaginary');
-            renderCriteria('actual');
-            renderRating();
-            calculateResults();
-            renderHistory();
-        }
-
-        function saveState() {
-            localStorage.setItem('smartPriorityState', JSON.stringify(state));
-        }
-
-        function loadState() {
-            const saved = localStorage.getItem('smartPriorityState');
-            if (saved) {
-                const loaded = JSON.parse(saved);
-                state.tasks = loaded.tasks || [];
-                state.criteria = loaded.criteria || [];
-                state.ratings = loaded.ratings || {};
-                state.history = loaded.history || [];
-                state.ratingsChanged = loaded.ratingsChanged || false;
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            loadState();
-            renderAll();
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchTab(btn.dataset.tab);
+            });
         });
+
+        renderEventsList();
+        renderDatesList();
+        renderPCriteriaList();
+        renderThreatCriteriaList();
+        renderRewardCriteriaList();
+        renderFCriteriaList();
+        renderRatings();
     </script>
 </body>
 </html>
